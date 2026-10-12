@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Tessera is a design system for products where AI agents take actions on a person's behalf.">
+<title>Tessera Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky section index on the left, one reading column on the right; the live agent demo is the centrepiece. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --sunken:#E8EEEC; --ink:#112220; --muted:#4A5E5A; --line:#CFDAD7;
+  --brand:#0F5C54; --on-brand:#FFFFFF;
+  --agent:#2447F5; --on-agent:#FFFFFF; --agent-tint:#E6EAFE; --agent-ink:#1B33B8;
+  --ok:#17724A; --ok-tint:#DDF3E8; --warn:#8F5A00; --warn-tint:#FBEBC8; --crit:#B42E28; --crit-tint:#FBE0DE;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Instrument Sans','Segoe UI',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r-s:3px; --r-m:6px; --r-l:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1413; --surface:#111D1C; --sunken:#0E1918; --ink:#E6F0EE; --muted:#9BB1AD; --line:#223533;
+    --brand:#4FD1BF; --on-brand:#06201C;
+    --agent:#8DA0FF; --on-agent:#0A1033; --agent-tint:#18214F; --agent-ink:#B6C2FF;
+    --ok:#5ED39A; --ok-tint:#10301F; --warn:#F0B84A; --warn-tint:#33260A; --crit:#FF8F86; --crit-tint:#3A1513;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1413; --surface:#111D1C; --sunken:#0E1918; --ink:#E6F0EE; --muted:#9BB1AD; --line:#223533;
+  --brand:#4FD1BF; --on-brand:#06201C;
+  --agent:#8DA0FF; --on-agent:#0A1033; --agent-tint:#18214F; --agent-ink:#B6C2FF;
+  --ok:#5ED39A; --ok-tint:#10301F; --warn:#F0B84A; --warn-tint:#33260A; --crit:#FF8F86; --crit-tint:#3A1513;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0;max-width:65ch}
+code,.mono{font-family:var(--f-mono);font-size:.84em}
+a{color:var(--agent-ink)}
+:focus-visible{outline:2px solid var(--agent);outline-offset:2px}
+.shell{max-width:1180px;margin-inline:auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;padding-block:24px 96px}
+nav.index{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:8px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+nav.index .brand{font-family:var(--f-display);font-weight:700;font-size:22px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.mark{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.mark i{background:var(--brand);border-radius:1px}
+.mark i:nth-child(2){background:var(--agent)}
+.mark i:nth-child(3){background:var(--agent);opacity:.45}
+nav.index a{color:var(--muted);text-decoration:none;padding:5px 0;border-bottom:1px solid transparent}
+nav.index a:hover{color:var(--ink)}
+.themebtn{margin-top:16px;font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--ink);border-radius:var(--r-m);padding:6px 10px;cursor:pointer;text-align:left}
+main{display:flex;flex-direction:column;gap:88px;min-width:0}
+section{display:flex;flex-direction:column;gap:28px;min-width:0;scroll-margin-top:24px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero{display:flex;flex-direction:column;gap:20px;padding-top:8px}
+.hero h1{font-size:clamp(40px,6.4vw,76px)}
+.hero h1 em{font-style:normal;color:var(--agent-ink)}
+.hero p.lead{font-size:19px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+h2{font-size:clamp(28px,3.6vw,40px)}
+h3{font-size:20px}
+.sub{color:var(--muted)}
+.grid{display:grid;gap:16px;min-width:0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:20px;min-width:0}
+.well{background:var(--sunken);border-radius:var(--r-m);padding:16px}
+.principle{display:flex;flex-direction:column;gap:10px}
+.principle .rule{font-family:var(--f-mono);font-size:12px;color:var(--agent-ink);background:var(--agent-tint);padding:6px 8px;border-radius:var(--r-s);align-self:flex-start}
+.swgroup{display:flex;flex-direction:column;gap:10px}
+.swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw{border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;background:var(--surface);font-size:12px;min-width:0}
+.sw .chip{height:56px;border-bottom:1px solid var(--line)}
+.sw .t{padding:8px;display:flex;flex-direction:column;gap:2px}
+.sw b{font-family:var(--f-mono);font-weight:500;font-size:12px}
+.sw span{color:var(--muted)}
+.scale{display:flex;flex-direction:column}
+.scale .row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;align-items:baseline;padding:12px 0;border-top:1px solid var(--line)}
+.scale .row:first-child{border-top:0}
+.scale .tag{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.space{display:flex;flex-direction:column;gap:8px}
+.space div{display:grid;grid-template-columns:70px 1fr;gap:12px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.space i{display:block;height:12px;background:var(--brand);border-radius:1px}
+.btn{font:inherit;font-weight:600;font-size:14px;border:1px solid transparent;border-radius:var(--r-m);padding:9px 16px;cursor:pointer;min-height:40px}
+.btn.primary{background:var(--brand);color:var(--on-brand)}
+.btn.secondary{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.agent{background:var(--agent);color:var(--on-agent)}
+.btn.danger{background:var(--crit-tint);color:var(--crit);border-color:var(--crit)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row-wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:0}
+.field input{font:inherit;font-family:var(--f-mono);font-size:14px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-m);padding:9px 12px;min-height:40px;width:100%}
+.field input:focus-visible{border-color:var(--agent)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12px;font-weight:500;padding:3px 9px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-idle{background:var(--sunken);color:var(--muted);border-color:var(--line)}
+.p-think,.p-act{background:var(--agent-tint);color:var(--agent-ink)}
+.p-wait{background:var(--warn-tint);color:var(--warn)}
+.p-done{background:var(--ok-tint);color:var(--ok)}
+.p-fail{background:var(--crit-tint);color:var(--crit)}
+.p-think::before,.p-act::before{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.aibadge{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;background:var(--agent-tint);color:var(--agent-ink);padding:3px 8px;border-radius:var(--r-s)}
+.aibadge::before{content:"";width:8px;height:8px;background:var(--agent);transform:rotate(45deg)}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.state{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);font-size:14px}
+.state p{color:var(--muted);font-size:13px}
+/* live demo */
+.demo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:760px){.demo{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}}
+.agentcard{border:1px solid var(--agent);border-radius:var(--r-l);background:var(--surface);display:flex;flex-direction:column;min-width:0}
+.agentcard header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--agent-tint);border-bottom:1px solid var(--agent);border-radius:calc(var(--r-l) - 1px) calc(var(--r-l) - 1px) 0 0}
+.agentcard header strong{font-family:var(--f-display);font-size:17px}
+.agentcard .body{padding:16px;display:flex;flex-direction:column;gap:16px}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px}
+ol.steps li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;color:var(--muted)}
+ol.steps li::before{content:"";width:16px;height:16px;border:2px solid var(--line);border-radius:50%;margin-top:3px}
+ol.steps li.run{color:var(--ink)}
+ol.steps li.run::before{border-color:var(--agent);border-top-color:transparent;animation:spin .8s linear infinite}
+ol.steps li.done{color:var(--ink)}
+ol.steps li.done::before{content:"✓";border:0;background:var(--ok);color:var(--surface);font-size:11px;line-height:16px;text-align:center;font-weight:700}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ratios{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-m)}
+.ratios table{width:100%;border-collapse:collapse;font-size:13px}
+.ratios th,.ratios td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ratios tr:last-child td{border-bottom:0}
+.ratios th{font-family:var(--f-mono);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--sunken)}
+.ratios td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.gate{border:1px dashed var(--warn);background:var(--warn-tint);border-radius:var(--r-m);padding:14px;display:flex;flex-direction:column;gap:12px}
+.gate.ok{border-color:var(--ok);background:var(--ok-tint);border-style:solid}
+.gate .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;font-size:13px}
+.gate .facts div{display:flex;flex-direction:column}
+.gate .facts span{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.diff{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:13px;flex-wrap:wrap}
+.diff i{display:inline-block;width:18px;height:18px;border-radius:var(--r-s);border:1px solid var(--line)}
+.err{color:var(--crit);font-size:13px}
+.radios{display:flex;flex-direction:column;gap:8px}
+.radios label{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);cursor:pointer;font-size:14px}
+.radios label:has(input:checked){border-color:var(--agent);background:var(--agent-tint)}
+.radios small{display:block;color:var(--muted);font-size:13px}
+.radios input{accent-color:var(--agent);margin-top:3px}
+.preview{display:flex;flex-direction:column;gap:10px}
+.softchip{display:inline-block;font-family:var(--f-mono);font-size:13px;padding:5px 10px;border-radius:var(--r-s);background:var(--agent-tint);color:var(--soft,#5B6DF0);align-self:flex-start}
+ul.trail{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:13px}
+ul.trail li{padding:8px 10px;border-left:3px solid var(--agent);background:var(--sunken);border-radius:0 var(--r-s) var(--r-s) 0;font-family:var(--f-mono);font-size:12px;overflow-wrap:anywhere}
+ul.trail li.empty{border-left-color:var(--line);color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-l);background:var(--surface)}
+.tbl table{width:100%;min-width:680px;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl th{font-family:var(--f-mono);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--sunken)}
+.tbl td:first-child{font-weight:600}
+pre{margin:0;background:var(--sunken);border:1px solid var(--line);border-radius:var(--r-m);padding:16px;overflow-x:auto;font-family:var(--f-mono);font-size:12.5px;line-height:1.65}
+.k{color:var(--agent-ink)}
+
+.cmp-body{display:flex;flex-direction:column;gap:10px;margin-top:12px;font-size:14px;min-height:120px}
+.cmp-body .line{padding:8px 10px;border-radius:var(--r-s);background:var(--sunken)}
+.cmp-body .bad{background:var(--crit-tint);color:var(--crit)}
+.cmp-body .unknown{color:var(--muted);font-family:var(--f-mono);font-size:12px}
+.panel.with{border-color:var(--agent)}
+.cmp-note{font-size:14px;color:var(--muted)}
+@media (max-width:899px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:24px}
+  nav.index{position:static;flex-direction:row;flex-wrap:wrap;gap:4px 16px;align-items:center}
+  nav.index .brand{width:100%;margin-bottom:4px}
+  .themebtn{margin-top:0}
+  main{gap:64px}
+  .scale .row{grid-template-columns:minmax(0,1fr);gap:4px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+</head>
+<body>
+<div class="shell">
+<nav class="index" aria-label="Sections">
+  <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Tessera</div>
+  <a href="#problem">The problem</a>
+  <a href="#principles">Principles</a>
+  <a href="#foundations">Foundations</a>
+  <a href="#components">Components</a>
+  <a href="#agentic">Agentic patterns</a>
+  <a href="#lifecycle">AI in the system</a>
+  <a href="#contract">Action contract</a>
+  <button class="themebtn" id="themebtn" type="button">Theme: auto</button>
+</nav>
+
+<main>
+<div class="hero">
+  <span class="eyebrow">Design system, v0.1</span>
+  <h1>One interface for people and <em>agents</em> that act.</h1>
+  <p class="lead">Tessera is a design system for products where AI does real work: reading, deciding and changing things on a person's behalf. It defines tokens, components and rules for showing what an agent is doing, asking before it acts, and leaving a trail anyone can audit.</p>
+  <div class="meta"><span>Light + dark</span><span>WCAG 2.2 AA</span><span>4-pt spacing grid</span><span>Agent-first components</span></div>
+</div>
+
+<section id="problem">
+  <div><span class="eyebrow">The problem</span><h2>Agents act without clicks. Can you tell what they did?</h2></div>
+  <p class="sub">AI agents now change settings, edit records and send messages on a person's behalf. Most interfaces give no consistent way to see what happened, approve it, or undo it. Run the same task in both interfaces. The task: an agent fixes a color that fails contrast.</p>
+  <div class="row-wrap"><button class="btn agent" id="cmp-run" type="button">Run the same task</button><button class="btn secondary" id="cmp-reset" type="button">Reset</button></div>
+  <div class="grid g2">
+    <div class="panel"><h3>Without Tessera</h3><div class="cmp-body" id="cmp-wo"><p class="cmp-note">Press Run to start.</p></div></div>
+    <div class="panel with"><h3>With Tessera</h3><div class="cmp-body" id="cmp-w" aria-live="polite"><p class="cmp-note">Press Run to start.</p></div></div>
+  </div>
+</section>
+
+<section id="principles">
+  <div><span class="eyebrow">Principles</span><h2>AI is a first-class user of the system</h2></div>
+  <p class="sub">Most systems add an "AI feature" at the end. Tessera starts from the opposite assumption: every component must work when an agent is the one acting, and every agent action must be readable by a person.</p>
+  <div class="grid g2">
+    <div class="panel principle"><h3>Agents propose, people decide</h3><p>Anything with side effects passes through an approval gate until the person raises the agent's autonomy.</p><span class="rule">component: Approval gate</span></div>
+    <div class="panel principle"><h3>Show the work</h3><p>Each result carries its steps, inputs and checks. A confident answer without a trace is treated as unfinished.</p><span class="rule">component: Run trace</span></div>
+    <div class="panel principle"><h3>Mark what the machine made</h3><p>Cobalt means an AI wrote it, is running it, or changed it. It is never used on human-authored content.</p><span class="rule">token: --agent, AI badge</span></div>
+    <div class="panel principle"><h3>Autonomy is a setting, not a surprise</h3><p>Three levels: suggest, ask first, act then report. The current level is always visible and one click to change.</p><span class="rule">control: Autonomy selector</span></div>
+  </div>
+</section>
+
+<section id="foundations">
+  <div><span class="eyebrow">Foundations</span><h2>Tokens</h2></div>
+  <p class="sub">Every color is a named token with a light and dark value. Values below are read live from the page, so switch the theme in the sidebar to see both.</p>
+  <div id="swatches" style="display:flex;flex-direction:column;gap:24px"></div>
+
+  <div class="grid g2">
+    <div class="panel">
+      <h3 style="margin-bottom:8px">Type</h3>
+      <p class="sub" style="margin-bottom:8px">Bricolage Grotesque for headings, Instrument Sans for interface text, JetBrains Mono for tokens, values and machine output.</p>
+      <div class="scale">
+        <div class="row"><span class="tag">display / 56</span><span style="font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1.1">Agent run</span></div>
+        <div class="row"><span class="tag">title / 28</span><span style="font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.15">Review proposed change</span></div>
+        <div class="row"><span class="tag">heading / 20</span><span style="font-family:var(--f-display);font-weight:700;font-size:20px">Token audit</span></div>
+        <div class="row"><span class="tag">body / 16</span><span>Checked 8 color pairs against WCAG 2.2 AA.</span></div>
+        <div class="row"><span class="tag">small / 13</span><span style="font-size:13px;color:var(--muted)">Reversible. Affects 1 token.</span></div>
+        <div class="row"><span class="tag">mono / 12.5</span><span class="mono">--agent-soft-text: #3F52D8</span></div>
+      </div>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:24px">
+      <div><h3 style="margin-bottom:12px">Spacing</h3>
+        <div class="space">
+          <div><span>space-1 · 4</span><i style="width:4px"></i></div>
+          <div><span>space-2 · 8</span><i style="width:8px"></i></div>
+          <div><span>space-3 · 12</span><i style="width:12px"></i></div>
+          <div><span>space-4 · 16</span><i style="width:16px"></i></div>
+          <div><span>space-6 · 24</span><i style="width:24px"></i></div>
+          <div><span>space-8 · 32</span><i style="width:32px"></i></div>
+          <div><span>space-12 · 48</span><i style="width:48px"></i></div>
+        </div>
+      </div>
+      <div><h3 style="margin-bottom:12px">Radius and motion</h3>
+        <div class="row-wrap">
+          <span class="well mono" style="border-radius:var(--r-s)">r-s 3</span>
+          <span class="well mono" style="border-radius:var(--r-m)">r-m 6</span>
+          <span class="well mono" style="border-radius:var(--r-l)">r-l 12</span>
+        </div>
+        <p class="sub" style="margin-top:12px;font-size:14px">Motion is reserved for agent activity: a 1.2s pulse on thinking and acting states. Everything stops under reduced-motion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="components">
+  <div><span class="eyebrow">Components</span><h2>Core set</h2></div>
+  <div class="grid g2">
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+      <h3>Button</h3>
+      <div class="row-wrap">
+        <button class="btn primary" type="button">Save</button>
+        <button class="btn secondary" type="button">Cancel</button>
+        <button class="btn agent" type="button">Ask agent</button>
+        <button class="btn danger" type="button">Reject</button>
+        <button class="btn primary" type="button" disabled>Disabled</button>
+      </div>
+      <p class="sub" style="font-size:14px">Brand buttons are for human decisions. The agent button starts or resumes an agent run, so it is always cobalt.</p>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+      <h3>Input</h3>
+      <label class="field" for="demo-token">Token value
+        <input id="demo-token" type="text" value="#0F5C54" spellcheck="false">
+      </label>
+      <p class="sub" style="font-size:14px">Mono face for anything an agent may read or write. Errors name the problem and the fix.</p>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+      <h3>AI badge and AI-authored content</h3>
+      <div class="well" style="display:flex;flex-direction:column;gap:8px;border-left:3px solid var(--agent)">
+        <span class="aibadge">AI-drafted</span>
+        <span>Summary of 14 comments: reviewers want larger touch targets on mobile.</span>
+      </div>
+      <p class="sub" style="font-size:14px">The cobalt rail and diamond mark content from an agent. Editing it removes the badge and returns it to human styling.</p>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+      <h3>Status pill</h3>
+      <div class="row-wrap">
+        <span class="pill p-done">Passed</span><span class="pill p-wait">Needs review</span><span class="pill p-fail">Failed</span><span class="pill p-idle">Draft</span>
+      </div>
+      <p class="sub" style="font-size:14px">Status always pairs a color with a word and a dot. Color is never the only signal.</p>
+    </div>
+  </div>
+</section>
+
+<section id="agentic">
+  <div><span class="eyebrow">Agentic patterns</span><h2>An agent you can run</h2></div>
+  <p class="sub">The demo below is a token audit agent. It reads this page's own tokens, calculates contrast, drafts a fix for a failing color, and hands control back according to the autonomy level you pick. The numbers are computed live.</p>
+
+  <div class="states" aria-label="Agent states">
+    <div class="state"><span class="pill p-idle">Idle</span><p>Waiting for a task. Offers a starting action.</p></div>
+    <div class="state"><span class="pill p-think">Thinking</span><p>Reading and planning. No side effects. Pulses.</p></div>
+    <div class="state"><span class="pill p-act">Acting</span><p>Making a change. Shows which step is running.</p></div>
+    <div class="state"><span class="pill p-wait">Waiting for you</span><p>Blocked on an approval. Never times out silently.</p></div>
+    <div class="state"><span class="pill p-done">Done</span><p>Finished, with a trace and an undo.</p></div>
+    <div class="state"><span class="pill p-fail">Needs attention</span><p>Failed or unsure. Says why and what it tried.</p></div>
+  </div>
+
+  <div class="demo">
+    <div class="agentcard">
+      <header>
+        <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="aibadge">Agent</span><strong>Token audit</strong></span>
+        <span class="pill p-idle" id="status" role="status" aria-live="polite">Idle</span>
+      </header>
+      <div class="body">
+        <div class="row-wrap"><button class="btn agent" id="run" type="button">Run audit</button><button class="btn secondary" id="reset" type="button">Reset</button></div>
+        <ol class="steps" id="steps" aria-label="Run trace">
+          <li data-s="0">Read tokens from this page</li>
+          <li data-s="1">Calculate contrast for 8 pairs</li>
+          <li data-s="2">Draft a fix for any pair below 4.5:1</li>
+          <li data-s="3">Apply, or hand over according to autonomy</li>
+        </ol>
+        <div id="ratios" hidden></div>
+        <div id="gate" hidden></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+      <div class="panel">
+        <h3 style="margin-bottom:12px">Autonomy</h3>
+        <div class="radios" role="radiogroup" aria-label="Autonomy level">
+          <label><input type="radio" name="auto" value="suggest"><span>Suggest only<small>Agent drafts. You apply changes yourself.</small></span></label>
+          <label><input type="radio" name="auto" value="ask" checked><span>Ask first<small>Agent pauses at an approval gate.</small></span></label>
+          <label><input type="radio" name="auto" value="act"><span>Act, then report<small>Agent applies reversible changes and logs them.</small></span></label>
+        </div>
+      </div>
+      <div class="panel preview">
+        <h3>Draft token in use</h3>
+        <span class="softchip" id="softchip">agent-soft-text on agent-tint</span>
+        <p class="sub" style="font-size:13px">Starts at <code>#5B6DF0</code>, a contributor's proposed value. The agent changes it only after it passes.</p>
+      </div>
+      <div class="panel">
+        <h3 style="margin-bottom:12px">Audit trail</h3>
+        <ul class="trail" id="trail"><li class="empty">No agent actions yet.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lifecycle">
+  <div><span class="eyebrow">AI in the system</span><h2>How agents change the way a design system is run</h2></div>
+  <p class="sub">The agent patterns above are for users of products built on Tessera. The same patterns govern how agents help maintain Tessera itself. In every row a person keeps the decision.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th>Agent does</th><th>Person decides</th><th>Guardrail</th></tr></thead>
+    <tbody>
+      <tr><td>Define tokens</td><td>Proposes scales for color, type and spacing from a brand brief and existing screens.</td><td>Which proposal becomes the baseline.</td><td>Every value traces to a named role.</td></tr>
+      <tr><td>Audit accessibility</td><td>Checks contrast, target size and focus states across all themes, as in the demo above.</td><td>Whether to accept a fix or change the design.</td><td>Fixes must reach 4.5:1 before they are offered.</td></tr>
+      <tr><td>Generate variants</td><td>Drafts component states and responsive layouts from one spec.</td><td>Which variants ship.</td><td>Output is marked AI-drafted until reviewed.</td></tr>
+      <tr><td>Write documentation</td><td>Writes usage notes and do/don't examples from real component code.</td><td>Tone and accuracy.</td><td>Docs link to the source they describe.</td></tr>
+      <tr><td>Detect drift</td><td>Scans product code for hard-coded colors and off-scale spacing.</td><td>Which deviations are intentional.</td><td>Read-only until approved.</td></tr>
+      <tr><td>Migrate</td><td>Opens a change to replace a deprecated token across files.</td><td>Merging the change.</td><td>Scoped, reversible, logged.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="contract">
+  <div><span class="eyebrow">Action contract</span><h2>What every agent action declares</h2></div>
+  <p class="sub">Components render from a small, shared description of an action. That is what lets the approval gate, the trace and the audit trail look the same in every product.</p>
+  <div class="grid g2">
+    <pre><span class="k">{</span>
+  <span class="k">"intent"</span>: "Change --agent-soft-text",
+  <span class="k">"scope"</span>: { "files": 1, "tokens": 1 },
+  <span class="k">"reversible"</span>: true,
+  <span class="k">"checks"</span>: [
+    { "name": "contrast >= 4.5", "result": "pass" }
+  ],
+  <span class="k">"sources"</span>: ["tokens.json", "WCAG 2.2 1.4.3"],
+  <span class="k">"requires_approval"</span>: "autonomy != act",
+  <span class="k">"actor"</span>: "agent:token-audit"
+<span class="k">}</span></pre>
+    <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+      <h3>Rules the gate enforces</h3>
+      <p>Irreversible actions always require approval, whatever the autonomy level.</p>
+      <p>An action with no sources or no checks cannot be applied automatically.</p>
+      <p>The audit trail records who approved: a person, or a named policy.</p>
+      <p>Undo is available for the last action until the next one starts.</p>
+    </div>
+  </div>
+</section>
+<footer style="color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:24px">Tessera v0.1, a concept design system. The agent demos run scripted logic in your browser; no AI model is called and nothing is sent anywhere.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var groups=[
+    {g:'Neutral',items:[['bg','Page'],['surface','Cards, inputs'],['sunken','Wells'],['ink','Text'],['muted','Secondary text'],['line','Borders']]},
+    {g:'Brand: people',items:[['brand','Primary actions'],['on-brand','Text on brand']]},
+    {g:'Agent: AI',items:[['agent','AI-authored or running'],['agent-ink','Agent text on tint'],['agent-tint','Agent surface'],['on-agent','Text on agent']]},
+    {g:'Status',items:[['ok','Success'],['warn','Waiting, caution'],['crit','Error']]}
+  ];
+  function val(n){return getComputedStyle(root).getPropertyValue('--'+n).trim().toUpperCase();}
+  function swatches(){
+    var h='';
+    groups.forEach(function(g){
+      h+='<div class="swgroup"><h3>'+g.g+'</h3><div class="swgrid">';
+      g.items.forEach(function(i){
+        h+='<div class="sw"><div class="chip" style="background:var(--'+i[0]+')"></div><div class="t"><b>--'+i[0]+'</b><span>'+val(i[0])+'</span><span>'+i[1]+'</span></div></div>';
+      });
+      h+='</div></div>';
+    });
+    document.getElementById('swatches').innerHTML=h;
+  }
+  swatches();
+
+  /* theme toggle */
+  var modes=['auto','light','dark'],mi=0,btn=document.getElementById('themebtn');
+  btn.addEventListener('click',function(){
+    mi=(mi+1)%3;
+    if(modes[mi]==='auto')root.removeAttribute('data-theme');else root.setAttribute('data-theme',modes[mi]);
+    btn.textContent='Theme: '+modes[mi];
+    swatches();
+  });
+  try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',swatches);}catch(e){}
+
+  /* colour maths */
+  function parse(c){var m=c.match(/[\d.]+/g);return [+m[0],+m[1],+m[2]];}
+  function hex2rgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+  function rgb2hex(c){return '#'+c.map(function(v){return ('0'+Math.round(v).toString(16)).slice(-2);}).join('').toUpperCase();}
+  function lum(c){var a=c.map(function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});return .2126*a[0]+.7152*a[1]+.0722*a[2];}
+  function ratio(a,b){var x=lum(a),y=lum(b),hi=Math.max(x,y),lo=Math.min(x,y);return (hi+.05)/(lo+.05);}
+  function mix(c,t,k){return c.map(function(v,i){return v+(t[i]-v)*k;});}
+  function resolve(n){
+    var d=document.createElement('div');d.style.color='var(--'+n+')';d.style.display='none';document.body.appendChild(d);
+    var c=getComputedStyle(d).color;document.body.removeChild(d);return parse(c);
+  }
+  function fix(fg,bg){
+    var best=null;
+    [[0,0,0],[255,255,255]].forEach(function(t){
+      for(var k=.02;k<=1.001;k+=.02){var c=mix(fg,t,k);if(ratio(c,bg)>=4.5){if(!best||k<best.k)best={k:k,c:c};break;}}
+    });
+    return best?rgb2hex(best.c):null;
+  }
+  var DRAFT='#5B6DF0';
+  var pairs=[['ink','bg'],['muted','bg'],['muted','surface'],['brand','surface'],['agent-ink','agent-tint'],['on-agent','agent'],['on-brand','brand'],['agent-soft-text','agent-tint']];
+
+  /* demo */
+  var status=document.getElementById('status'),stepsEl=document.getElementById('steps'),ratiosEl=document.getElementById('ratios'),gate=document.getElementById('gate'),trail=document.getElementById('trail'),runBtn=document.getElementById('run'),chip=document.getElementById('softchip');
+  var running=false,token=0,lastApplied=null;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function sleep(ms){return new Promise(function(r){setTimeout(r,reduce?120:ms);});}
+  function setStatus(cls,txt){status.className='pill '+cls;status.textContent=txt;}
+  function step(i,s){var li=stepsEl.querySelector('[data-s="'+i+'"]');li.className=s;}
+  function autonomy(){return document.querySelector('input[name="auto"]:checked').value;}
+  function now(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+  function log(txt){
+    var e=trail.querySelector('.empty');if(e)trail.removeChild(e);
+    var li=document.createElement('li');li.textContent=now()+' · '+txt;trail.insertBefore(li,trail.firstChild);
+  }
+  function setSoft(v){chip.style.setProperty('--soft',v);}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+  function reset(){
+    token++;running=false;
+    setStatus('p-idle','Idle');
+    [].forEach.call(stepsEl.children,function(li){li.className='';});
+    ratiosEl.hidden=true;ratiosEl.innerHTML='';gate.hidden=true;gate.innerHTML='';
+    runBtn.disabled=false;runBtn.textContent='Run audit';
+    setSoft(DRAFT);lastApplied=null;
+  }
+
+  function showRatios(rows){
+    var h='<div class="ratios"><table><thead><tr><th>Pair</th><th>Ratio</th><th>AA</th></tr></thead><tbody>';
+    rows.forEach(function(r){
+      h+='<tr><td>--'+esc(r.fg)+' on --'+esc(r.bg)+'</td><td class="n">'+r.r.toFixed(2)+':1</td><td>'+(r.r>=4.5?'<span class="pill p-done">Pass</span>':'<span class="pill p-fail">Fail</span>')+'</td></tr>';
+    });
+    ratiosEl.innerHTML=h+'</tbody></table></div>';ratiosEl.hidden=false;
+  }
+
+  function finishApplied(newHex,by,undoable){
+    setSoft(newHex);lastApplied=newHex;
+    log('Token audit · changed --agent-soft-text '+DRAFT+' → '+newHex+' · '+by+' · reversible');
+    setStatus('p-done','Done');
+    gate.className='gate ok';
+    gate.innerHTML='<strong>Change applied</strong><div class="diff"><i style="background:'+DRAFT+'"></i>'+DRAFT+' → <i style="background:'+newHex+'"></i>'+newHex+'</div><div class="row-wrap">'+(undoable?'<button class="btn secondary" id="undo" type="button">Undo</button>':'')+'</div>';
+    gate.hidden=false;
+    var u=document.getElementById('undo');
+    if(u)u.addEventListener('click',function(){
+      setSoft(DRAFT);log('Token audit · undid change · restored '+DRAFT+' · by you');
+      gate.className='gate';gate.innerHTML='<strong>Change undone</strong><p style="font-size:14px">The token is back to '+DRAFT+'. The audit trail keeps both entries.</p>';
+      setStatus('p-idle','Idle');
+    });
+    runBtn.disabled=false;runBtn.textContent='Run again';running=false;
+  }
+
+  async function run(){
+    if(running)return;
+    reset();running=true;runBtn.disabled=true;var my=++token;
+    var mode=autonomy();
+    setStatus('p-think','Thinking');step(0,'run');await sleep(700);if(my!==token)return;
+    var rows=pairs.map(function(p){
+      var fg=p[0]==='agent-soft-text'?hex2rgb(DRAFT):resolve(p[0]);
+      return {fg:p[0],bg:p[1],fgc:fg,bgc:resolve(p[1]),r:0};
+    });
+    rows.forEach(function(r){r.r=ratio(r.fgc,r.bgc);});
+    step(0,'done');step(1,'run');await sleep(800);if(my!==token)return;
+    showRatios(rows);step(1,'done');
+    var failing=rows.filter(function(r){return r.r<4.5;});
+    step(2,'run');await sleep(800);if(my!==token)return;
+    if(!failing.length){
+      step(2,'done');step(3,'done');setStatus('p-done','Done');
+      gate.className='gate ok';gate.innerHTML='<strong>No changes needed</strong><p style="font-size:14px">All pairs meet 4.5:1 in this theme.</p>';gate.hidden=false;
+      log('Token audit · checked '+rows.length+' pairs · no changes');runBtn.disabled=false;runBtn.textContent='Run again';running=false;return;
+    }
+    var f=failing[0],proposal=fix(f.fgc,f.bgc);
+    if(!proposal){
+      step(2,'done');setStatus('p-fail','Needs attention');
+      gate.className='gate';gate.innerHTML='<strong>No safe fix found</strong><p style="font-size:14px">Neither a darker nor a lighter value reaches 4.5:1 on this background. The background needs to change. Handing this back to you.</p>';gate.hidden=false;
+      log('Token audit · no safe fix for --'+f.fg+' · handed back');runBtn.disabled=false;running=false;return;
+    }
+    var after=ratio(hex2rgb(proposal),f.bgc);
+    step(2,'done');step(3,'run');
+    var facts='<div class="facts"><div><span>Scope</span>1 token</div><div><span>Reversible</span>Yes</div><div><span>Check</span>'+f.r.toFixed(2)+' → '+after.toFixed(2)+':1</div><div><span>Source</span>WCAG 1.4.3</div></div>';
+    var diff='<div class="diff"><i style="background:'+DRAFT+'"></i>'+DRAFT+' → <i style="background:'+proposal+'"></i>'+proposal+'</div>';
+
+    if(mode==='act'){
+      setStatus('p-act','Acting');await sleep(700);if(my!==token)return;
+      step(3,'done');finishApplied(proposal,'applied by policy: act, then report',true);return;
+    }
+    if(mode==='suggest'){
+      step(3,'done');setStatus('p-done','Suggestion ready');
+      gate.className='gate';
+      gate.innerHTML='<strong>Suggested change</strong><p style="font-size:14px">Autonomy is set to suggest only, so nothing was changed.</p>'+diff+facts+'<div class="row-wrap"><button class="btn secondary" id="copy" type="button">Copy value</button><button class="btn secondary" id="dismiss" type="button">Dismiss</button></div><span class="mono" id="copymsg" style="font-size:12px"></span>';
+      gate.hidden=false;
+      document.getElementById('copy').addEventListener('click',function(){
+        var m=document.getElementById('copymsg');
+        try{navigator.clipboard.writeText(proposal).then(function(){m.textContent='Copied '+proposal;},function(){m.textContent='Select and copy: '+proposal;});}catch(e){m.textContent='Select and copy: '+proposal;}
+      });
+      document.getElementById('dismiss').addEventListener('click',function(){gate.hidden=true;log('Token audit · suggestion for --agent-soft-text dismissed · by you');setStatus('p-idle','Idle');});
+      log('Token audit · suggested '+proposal+' for --agent-soft-text · not applied');
+      runBtn.disabled=false;runBtn.textContent='Run again';running=false;return;
+    }
+    /* ask first */
+    setStatus('p-wait','Waiting for you');
+    gate.className='gate';
+    gate.innerHTML='<strong>Approve this change?</strong>'+diff+facts+
+      '<label class="field" for="editval">Value<input id="editval" type="text" value="'+proposal+'" spellcheck="false"></label><span class="err" id="err" role="alert"></span>'+
+      '<div class="row-wrap"><button class="btn primary" id="approve" type="button">Approve</button><button class="btn danger" id="reject" type="button">Reject</button></div>';
+    gate.hidden=false;
+    document.getElementById('approve').addEventListener('click',function(){
+      var v=document.getElementById('editval').value.trim().toUpperCase(),err=document.getElementById('err');
+      if(!/^#[0-9A-F]{6}$/.test(v)){err.textContent='Enter a 6-digit hex value such as '+proposal+'.';return;}
+      var r=ratio(hex2rgb(v),f.bgc);
+      if(r<4.5){err.textContent='That value gives '+r.toFixed(2)+':1. Use at least 4.5:1, for example '+proposal+'.';return;}
+      step(3,'done');finishApplied(v,v===proposal?'approved by you':'edited and approved by you',true);
+    });
+    document.getElementById('reject').addEventListener('click',function(){
+      step(3,'done');setStatus('p-idle','Idle');
+      gate.className='gate';gate.innerHTML='<strong>Rejected</strong><p style="font-size:14px">Nothing was changed. The agent keeps the proposal in the trail.</p>';
+      log('Token audit · proposed '+proposal+' · rejected by you');
+      runBtn.disabled=false;runBtn.textContent='Run again';running=false;
+    });
+  }
+  runBtn.addEventListener('click',run);
+  document.getElementById('reset').addEventListener('click',reset);
+  setSoft(DRAFT);
+
+  /* problem demo */
+  (function(){
+    var wo=document.getElementById('cmp-wo'),w=document.getElementById('cmp-w'),run=document.getElementById('cmp-run'),rs=document.getElementById('cmp-reset');
+    var tk=0,busy=false;
+    function wait(ms){return new Promise(function(r){setTimeout(r,reduce?80:ms);});}
+    function add(box,cls,html){var d=document.createElement('div');d.className='line '+(cls||'');d.innerHTML=html;box.appendChild(d);return d;}
+    function clear(){tk++;busy=false;wo.innerHTML='<p class="cmp-note">Press Run to start.</p>';w.innerHTML='<p class="cmp-note">Press Run to start.</p>';run.disabled=false;}
+    async function go(){
+      if(busy)return;clear();busy=true;run.disabled=true;var my=tk;
+      wo.innerHTML='';w.innerHTML='';
+      add(wo,'','Agent is working...');add(w,'','<span class="pill p-think">Thinking</span> Reading tokens');
+      await wait(900);if(my!==tk)return;
+      wo.innerHTML='';add(wo,'','<strong>Done!</strong> I improved your colors.');
+      add(wo,'unknown','What changed? unknown<br>Which file? unknown<br>Can I undo it? unknown');
+      add(wo,'bad','You find out later, when something looks wrong.');
+      add(w,'','<span class="pill p-act">Acting</span> Checked 8 pairs, 1 below 4.5:1');
+      await wait(900);if(my!==tk)return;
+      var gate=add(w,'','<span class="pill p-wait">Waiting for you</span> Change <code>--agent-soft-text</code> from <code>#5B6DF0</code> to <code>#3F52D8</code>. Contrast 3.9 to 6.1:1. Reversible. Source: WCAG 1.4.3.<div class="row-wrap" style="margin-top:10px"><button class="btn primary" id="cmp-ok" type="button">Approve</button><button class="btn danger" id="cmp-no" type="button">Reject</button></div>');
+      document.getElementById('cmp-ok').addEventListener('click',function(){
+        if(my!==tk)return;
+        gate.innerHTML='<span class="pill p-done">Done</span> Applied after your approval. Logged in the audit trail.<div class="row-wrap" style="margin-top:10px"><button class="btn secondary" id="cmp-undo" type="button">Undo</button></div>';
+        document.getElementById('cmp-undo').addEventListener('click',function(){gate.innerHTML='<span class="pill p-idle">Undone</span> Restored #5B6DF0. Both entries stay in the trail.';});
+        run.disabled=false;busy=false;
+      });
+      document.getElementById('cmp-no').addEventListener('click',function(){
+        if(my!==tk)return;
+        gate.innerHTML='<span class="pill p-idle">Rejected</span> Nothing was changed.';run.disabled=false;busy=false;
+      });
+    }
+    run.addEventListener('click',go);rs.addEventListener('click',clear);
+  })();
+})();
+</script>
+</body>
+</html>
